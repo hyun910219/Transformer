@@ -36,14 +36,13 @@ def scaled_dot_product_attention(q, k, v, mask=False):
     matmul_qk = torch.matmul(q, k.transpose(1,2))
     scale = matmul_qk / math.sqrt(d_model)
     if mask == True:
-        mask_mat = torch.empty_like(scale)
-        for i in range(mask_mat.shape[1]):
-            for j in range(mask_mat.shape[2]):
+        for i in range(scale.shape[1]):
+            for j in range(scale.shape[2]):
                 if i >= j:
-                    mask_mat[:, i, j] = 1
+                    pass
                 else:
-                    mask_mat[:, i, j] = -math.inf
-        mask_opt = scale * mask_mat
+                    scale[:, i, j] = -math.inf
+        mask_opt = scale
     else:
         mask_opt = scale
     softmax = torch.softmax(mask_opt, dim=2)
@@ -130,8 +129,8 @@ class transformer(nn.Module):
 
         outputs = self.output_embedding.embed(torch.tensor(outputs))
         outputs = positional_encoding((outputs))
-        for i in range(number_of_decoder_layers):
-            outputs = self.decode_layers[i](outputs, inputs)
+        # for i in range(number_of_decoder_layers):
+        #     outputs = self.decode_layers[i](outputs, inputs)
         return outputs
 
 model = transformer()
